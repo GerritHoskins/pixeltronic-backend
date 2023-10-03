@@ -1,124 +1,80 @@
 // @ts-ignore
-import bcrypt from 'bcryptjs';
-import User from "../model/user";
+import {compare, hash} from 'bcryptjs';
+import User from '../model/user';
 
-type RequestType = { body: { username: any; password: any; role: string; id: string; }; };
-type ResponseType = any;
-type ErrorType = any;
+type RequestBody = {
+    username?: string;
+    password?: string;
+    role?: string;
+    id?: string;
+};
 
-export const register = async (req: RequestType, res: ResponseType, next: any) => {
-    const { username, password } = req.body
-    if (password.length < 6) {
-        return res.status(400).json({ message: "Password less than 6 characters" })
+type RequestType = { body: RequestBody };
+type ResponseType = { status: (code: number) => ResponseType; json: (body: any) => void };
+type NextFunction = (err?: any) => void;
+
+export const register = async (req: RequestType, res: ResponseType, next: NextFunction) => {
+    const {username, password} = req.body;
+    if (password && password.length < 6) {
+        return res.status(400).json({message: "Password less than 6 characters"});
     }
     try {
-        bcrypt.hash(password, 10).then(async (hash: any) => {
-            await User.create({
-                username,
-                password: hash,
-            })
-                .then((user) =>
-                    res.status(200).json({
-                        message: "User successfully created",
-                        user,
-                    })
-                )
-                .catch((error) =>
-                    res.status(400).json({
-                        message: "User not successful created",
-                        error: error.message,
-                    })
-                );
-        });
-    } catch (err: ErrorType) {
-        res.status(401).json({
-            message: "User not successful created",
-            error: err.mesage,
-        })
+        const hashedPassword = await hash(password!, 10);
+        const user = await User.create({username, password: hashedPassword});
+        return res.status(200).json({message: "User successfully created", user});
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({message: "User creation failed"});
     }
 }
 
-export const login = async (req: RequestType, res: ResponseType,  next: any) => {
-    const { username, password } = req.body
-    // Check if username and password is provided
+export const login = async (req: RequestType, res: ResponseType, next: NextFunction) => {
+    const {username, password} = req.body;
     if (!username || !password) {
-        return res.status(400).json({
-            message: "Username or Password not present",
-        })
+        return res.status(400).json({message: "Username or Password not provided"});
     }
     try {
-        const user = await User.findOne({ username })
-        if (!user) {
-            res.status(400).json({
-                message: "Login not successful",
-                error: "User not found",
-            })
-        } else {
-            // comparing given password with hashed password
-            bcrypt.compare(password, user.password).then(function (result: any) {
-                result
-                    ? res.status(200).json({
-                        message: "Login successful",
-                        user,
-                    })
-                    : res.status(400).json({ message: "Login not succesful" })
-            })
+        const user = await User.findOne({username});
+        if (!user || !(await compare(password, user.password))) {
+            return res.status(400).json({message: "Login not successful"});
         }
-    } catch (error: ErrorType) {
-        res.status(400).json({
-            message: "An error occurred",
-            error: error?.message,
-        })
+        return res.status(200).json({message: "Login successful", user});
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({message: "Login failed"});
     }
 }
 
-export const update = async (req: RequestType, res: ResponseType,  next: any) => {
-    const { role, id } = req.body
-    if (role && id) {
-        await User.findById(id)
-            .then((user) => {
-                if(!user) {
-                    throw Error;
-                }
-                if (user?.role !== role) {
-                    user.role = role;
-                    user.save()
-                        .then(() => {
-                            res.status(201).json({message: "Update successful", user});
-                        })
-                        .catch((err) => {
-                            res.status(400).json({message: "An error occurred", error: err.message});
-                            process.exit(1);
-                        });
-                } else {
-                    res.status(400).json({message: "User already has role: " + role});
-                }
-            })
-            .catch((error) => {
-                res
-                    .status(400)
-                    .json({message: "An error occurred", error: error.message});
-            });
-    } else {
-        res.status(400).json({message: "Role or Id not present"})
+export const update = async (req: RequestType, res: ResponseType, next: NextFunction) => {
+    const {role, id} = req.body;
+    if (!role || !id) {
+        return res.status(400).json({message: "Role or Id not provided"});
+    }
+    try {
+        const user = await User.findById(id);
+        if (!user || user.role === role) {
+            return res.status(400).json({message: `User not found or already has role: ${role}`});
+        }
+        user.role = role;
+        await user.save();
+        return res.status(200).json({message: "Update successful", user});
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({message: "Update failed"});
     }
 }
 
-export const deleteUser = async (req: RequestType, res: ResponseType,  next: any) => {
-    const { id } = req.body
-    await User.findById(id)
-        .then(user =>   user?.deleteOne())
-        .catch(error =>
-            res
-                .status(400)
-                .json({ message: "An error occurred", error: error.message })
-        )
-        .then(user =>
-            res.status(201).json({ message: "User successfully deleted", user })
-        )
-        .catch(error =>
-            res
-                .status(400)
-                .json({ message: "An error occurred", error: error.message })
-        )
+export const deleteUser = async (req: RequestType, res: ResponseType, next: NextFunction) => {
+    const {id} = req.body;
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(400).json({message: "User not found"});
+        }
+        await user.deleteOne();
+        return res.status(200).json({message: "User successfully deleted"});
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({message: "Delete failed"});
+    }
 }
