@@ -1,13 +1,13 @@
 {
-  "name": "pixeltronic-main",
+  "name": "pixeltronic-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Express and MongoDB backend",
   "main": "src/server.js",
   "scripts": {
     "start": "npx tsc && node build/server.js",
     "dev": "npx tsc && nodemon build/server.js"
   },
-  "author": "",
+  "author": "GerritHoskins",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
