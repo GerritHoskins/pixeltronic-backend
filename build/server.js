@@ -13,20 +13,47 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+// @ts-ignore
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const db_1 = __importDefault(require("./db"));
 const route_1 = __importDefault(require("./auth/route"));
+const auth_1 = require("./auth/auth");
 const app = (0, express_1.default)();
 const PORT = 3000;
-const server = app.listen(PORT, () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(`Server Connected to port ${PORT}`);
-    yield (0, db_1.default)();
-}));
+// Middleware
+app.use(express_1.default.json());
+app.use((0, cookie_parser_1.default)());
+// Routes
 app.get('/', (req, res) => {
+    console.log('Server up and running.');
     res.send('Server up and running.');
 });
+app.get('/admin', auth_1.adminAuth, (req, res) => res.send('Admin Route'));
+app.get('/basic', auth_1.userAuth, (req, res) => res.send('User Route'));
+app.get('/logout', (req, res) => {
+    res.cookie('jwt', '', { maxAge: 1 });
+    res.redirect('/');
+});
+app.use('/api/auth', route_1.default);
+// Error Handler Middleware (placed after all other routes and middleware)
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(err.status || 500).send('Something broke!');
+});
+const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, db_1.default)();
+        app.listen(PORT, () => {
+            console.log(`Server connected to port ${PORT}`);
+        });
+    }
+    catch (error) {
+        console.error(`Error connecting to database: ${error}`);
+        process.exit(1);
+    }
+});
+startServer();
 process.on('unhandledRejection', (err) => {
     console.log(`An error occurred: ${err.message}`);
-    server.close(() => process.exit(1));
+    process.exit(1);
 });
-app.use(express_1.default.json());
-app.use('/api/auth', route_1.default);

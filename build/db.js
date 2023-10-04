@@ -16,9 +16,15 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const username = encodeURIComponent("pixeltronic");
 const password = encodeURIComponent("996047521");
 const cluster = "atlascluster.gim7y0m.mongodb.net";
-let uri = `mongodb+srv://${username}:${password}@${cluster}/`;
+const uri = `mongodb+srv://${username}:${password}@${cluster}/`;
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield mongoose_1.default.connect(uri);
-    console.log("MongoDB Connected");
+    try {
+        yield mongoose_1.default.connect(uri);
+        console.log("Connected to MongoDB");
+    }
+    catch (error) {
+        console.error("Error connecting to MongoDB", error);
+        process.exit(1);
+    }
 });
 exports.default = connectDB;
