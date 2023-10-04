@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, {Express, NextFunction, Request, Response} from 'express';
 // @ts-ignore
 import cookieParser from 'cookie-parser';
@@ -6,7 +7,7 @@ import router from './auth/route';
 import {adminAuth, userAuth} from './auth/auth';
 
 const app: Express = express();
-const PORT: number | string = 3000;
+const PORT: number | string = process.env.PORT || 0;
 
 // Middleware
 app.use(express.json());

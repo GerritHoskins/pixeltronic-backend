@@ -1,3 +1,4 @@
+import 'dotenv/config';
 // @ts-ignore
 import {compare, hash} from 'bcryptjs';
 // @ts-ignore
@@ -11,7 +12,7 @@ type NextFunction = (err?: any) => void;
 
 const verifyPromise = promisify(verify);
 
-const jwtSecretLive =  process.env.JWT_SECRET_LIVE || '';
+const jwtSecretLive = process.env.JWT_SECRET_LIVE || '';
 
 export const register = async (req: RequestType, res: ResponseType, next: NextFunction) => {
     const {username, password} = req.body;
