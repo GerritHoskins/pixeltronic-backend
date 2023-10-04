@@ -9,10 +9,9 @@ type RequestType = any;
 type ResponseType = any;
 type NextFunction = (err?: any) => void;
 
-
 const verifyPromise = promisify(verify);
 
-const jwtSecretLive = ''
+const jwtSecretLive =  process.env.JWT_SECRET_LIVE || '';
 
 export const register = async (req: RequestType, res: ResponseType, next: NextFunction) => {
     const {username, password} = req.body;

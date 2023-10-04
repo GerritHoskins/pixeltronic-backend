@@ -1,8 +1,9 @@
 import Mongoose from 'mongoose';
+import 'dotenv/config'
 
-const username = encodeURIComponent("");
-const password = encodeURIComponent("");
-const cluster = "";
+const username = encodeURIComponent(process.env.DB_USERNAME || "");
+const password = encodeURIComponent(process.env.DB_PASSWORD ||"");
+const cluster = process.env.DB_CLUSTER || "";
 
 const uri = `mongodb+srv://${username}:${password}@${cluster}/`;
 
