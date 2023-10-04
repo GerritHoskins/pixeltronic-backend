@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express, {Express, NextFunction, Request, Response} from 'express';
+import cors from 'cors';
 // @ts-ignore
 import cookieParser from 'cookie-parser';
 import connectDB from './db';
@@ -10,6 +11,7 @@ const app: Express = express();
 const PORT: number | string = process.env.PORT || 0;
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -19,7 +21,7 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Server up and running.');
 });
 app.get('/admin', adminAuth, (req, res) => res.send('Admin Route'));
-app.get('/basic', userAuth, (req, res) => res.send('User Route'));
+app.get('/home', userAuth, (req, res) => res.send('User Route'));
 app.get('/logout', (req, res) => {
     res.cookie('jwt', '', {maxAge: 1})
     res.redirect('/')
