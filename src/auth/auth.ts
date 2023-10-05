@@ -25,8 +25,13 @@ export const register = async (req: Request, res: Response) => {
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
     res.status(201).json({ message: 'User successfully created', user: user._id });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: 'User creation failed', error: error.message });
+    if (error instanceof Error) {
+      console.error(`An uncaught exception occurred: ${error.message}`);
+    } else {
+      console.error(`An unexpected exception occurred: ${error}`);
+    }
+
+    res.status(400).json({ message: 'User creation failed' });
   }
 };
 

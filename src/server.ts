@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express, { Express, Request, Response } from 'express';
+import express, { Express, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import connectDB from './db';
@@ -53,7 +53,7 @@ interface ErrorHandler extends Error {
 }
 
 // Error Handler Middleware (placed after all other routes and middleware)
-app.use((err: ErrorHandler, req: Request, res: Response) => {
+app.use((err: ErrorHandler, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(err.status || 500).send('Something broke!');
 });
