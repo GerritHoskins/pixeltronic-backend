@@ -5,24 +5,33 @@
   "main": "src/server.js",
   "scripts": {
     "start": "npx tsc && node build/server.js",
-    "dev": "npx tsc && nodemon build/server.js"
+    "dev": "npx tsc && nodemon build/server.js",
+    "lint": "eslint src/**/*.ts",
+    "format": "eslint src/**/*.ts --fix && prettier --write src/"
   },
   "author": "GerritHoskins",
   "license": "ISC",
   "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
+    "eslint": "^8.50.0",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "6.1",
     "mongoose": "^7.5.3",
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.4",
+    "@types/cookie-parser": "^1.4.4",
     "@types/cors": "^2.8.14",
     "@types/express": "^4.17.18",
+    "@types/jsonwebtoken": "^9.0.3",
     "@types/node": "^18.18.3",
     "typescript": "^4.7.4"
   }

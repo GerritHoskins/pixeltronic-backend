@@ -1,0 +1,12 @@
+export enum Env {
+  NODE_ENV = 'NODE_ENV',
+  PORT = 'PORT',
+  DB_CLUSTER = 'DB_CLUSTER',
+  DB_USERNAME = 'DB_USERNAME',
+  DB_PASSWORD = 'DB_PASSWORD',
+  JWT_SECRET_LIVE = 'JWT_SECRET_LIVE',
+  WEBHOOK_GITHUB_SYNC_URL = 'WEBHOOK_GITHUB_SYNC_URL',
+  WEBHOOK_GITHUB_SYNC_SECRET = 'WEBHOOK_GITHUB_SYNC_SECRET',
+}
+
+export const getEnv = (envName: Env): string => process.env[envName] || '';
