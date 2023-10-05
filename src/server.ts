@@ -31,7 +31,7 @@ app.post(getEnv(Env.WEBHOOK_GITHUB_SYNC_URL), (req: Request, res: Response) => {
     if (stderr) {
       console.warn(`git warnings: ${stderr}`);
     }
-    console.log(`stdout: ${stdout}`);
+    console.log(`git repo: ${stdout}`);
     res.status(200).send('Received and processed!');
   });
 });
