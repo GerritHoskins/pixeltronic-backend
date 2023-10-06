@@ -3,7 +3,7 @@ import express, { Express, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import connectDB from './connect';
-import router from './auth/route';
+import router from './routes';
 import { adminAuth, userAuth } from './auth/auth';
 import { verify_signature } from './config/webhooks';
 import { Env, getEnv } from './config/env';
@@ -45,7 +45,8 @@ app.get('/logout', (req, res) => {
   res.cookie('jwt', '', { maxAge: 1 });
   res.redirect('/');
 });
-app.use('/api/auth', router);
+app.use('/api/auth', router.auth);
+app.use('/api/project', router.project);
 
 // Define an error type
 interface ErrorHandler extends Error {
