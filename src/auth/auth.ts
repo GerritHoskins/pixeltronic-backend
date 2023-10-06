@@ -23,7 +23,7 @@ export const register = async (req: Request, res: Response) => {
       expiresIn: maxAge,
     });
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-    res.status(201).json({ message: 'User successfully created', user: user._id });
+    res.status(201).json({ message: 'User successfully created', user: { id: user._id, username, role: user.role } });
   } catch (error) {
     if (error instanceof Error) {
       console.error(`An uncaught exception occurred: ${error.message}`);
@@ -50,7 +50,14 @@ export const login = async (req: Request, res: Response) => {
         expiresIn: maxAge,
       });
       res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-      res.status(200).json({ message: 'Successfully logged in', user: user });
+      res.status(200).json({
+        message: 'Successfully logged in',
+        user: {
+          id: user._id,
+          username: user.username,
+          role: user.role,
+        },
+      });
     } else {
       res.status(400).json({ message: 'Invalid username or password' });
     }
@@ -59,7 +66,10 @@ export const login = async (req: Request, res: Response) => {
     res.status(400).json({ message: 'Login failed' });
   }
 };
-
+export const logout = async (req: Request, res: Response) => {
+  res.cookie('jwt', '', { maxAge: 1 });
+  res.redirect(200, '/');
+};
 export const update = async (req: Request, res: Response) => {
   const { role, id } = req.body;
   if (!role || !id) {
