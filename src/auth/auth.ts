@@ -79,7 +79,7 @@ export const update = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const remove = async (req: Request, res: Response) => {
   const { id } = req.body;
   try {
     const user = await User.findById(id);
@@ -119,7 +119,7 @@ const auth = (role: string) => async (req: Request, res: Response, next: NextFun
 export const adminAuth = auth('admin');
 export const userAuth = auth('Basic');
 
-export const getUsers = async (req: Request, res: Response) => {
+export const all = async (req: Request, res: Response) => {
   try {
     const users = await User.find({});
     const userFunction = users.map((user) => ({

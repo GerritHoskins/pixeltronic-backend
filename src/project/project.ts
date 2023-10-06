@@ -97,4 +97,4 @@ const all = async (req: Request, res: Response) => {
   }
 };
 
-export { add, update, remove, get, getAll };
+export { add, update, remove, get, all };

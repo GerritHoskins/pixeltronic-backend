@@ -4,7 +4,8 @@
   "description": "Express and MongoDB backend",
   "main": "src/server.js",
   "scripts": {
-    "start": "npx tsc && pm2 start build/server.js",
+    "start": "pm2 start \"npm run debug\" --watch",
+    "debug": "npx tsc && node --debug build/server.js",
     "dev": "npx tsc && nodemon build/server.js",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix && prettier --write src/"
