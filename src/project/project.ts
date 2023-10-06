@@ -72,7 +72,7 @@ const get = async (req: Request, res: Response) => {
   try {
     const project = await Project.findById(id);
     if (!project) {
-      return res.status(400).json({ message: `Project not found with name: ${name}` });
+      return res.status(400).json({ message: `Project not found with name: ${id}` });
     }
 
     return res.status(200).json({ message: 'Get project successful', project });

@@ -50,7 +50,7 @@ export const login = async (req: Request, res: Response) => {
         expiresIn: maxAge,
       });
       res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-      res.status(200).json({ message: 'Successfully logged in', user: user._id });
+      res.status(200).json({ message: 'Successfully logged in', user: user });
     } else {
       res.status(400).json({ message: 'Invalid username or password' });
     }
