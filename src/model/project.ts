@@ -1,4 +1,5 @@
 import Mongoose from 'mongoose';
+
 const ProjectSchema = new Mongoose.Schema({
   name: {
     type: String,
@@ -7,12 +8,10 @@ const ProjectSchema = new Mongoose.Schema({
   },
   desc: {
     type: String,
-    required: true,
   },
   img: {
     data: Buffer,
     contentType: String,
-    required: true,
   },
 });
 
