@@ -59,6 +59,7 @@ export const login = async (req: Request, res: Response) => {
     res.status(400).json({ message: 'Login failed' });
   }
 };
+
 export const update = async (req: Request, res: Response) => {
   const { role, id } = req.body;
   if (!role || !id) {

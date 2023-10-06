@@ -18,7 +18,7 @@ const add = async (req: Request, res: Response) => {
       console.error(`An unexpected exception occurred: ${error}`);
     }
 
-    res.status(400).json({ message: 'User creation failed' });
+    res.status(400).json({ message: 'Project creation failed' });
   }
 };
 
@@ -75,13 +75,13 @@ const get = async (req: Request, res: Response) => {
       return res.status(400).json({ message: `Project not found with name: ${name}` });
     }
 
-    return res.status(200).json({ message: 'Update successful', project });
+    return res.status(200).json({ message: 'Get project successful', project });
   } catch (error) {
     console.error(error);
   }
 };
 
-const getAll = async (req: Request, res: Response) => {
+const all = async (req: Request, res: Response) => {
   try {
     const projects = await Project.find({});
     const projectFunction = projects.map((project) => ({

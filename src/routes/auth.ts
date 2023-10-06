@@ -5,10 +5,10 @@ const router = express.Router();
 
 router.route('/register').post(register);
 router.route('/login').post(login);
-router.route('/getUsers').get(getUsers);
+router.route('/all').get(getUsers);
 
 // updating user roles and deleting users should be done by an Admin
 router.route('/update').put(adminAuth, update);
-router.route('/deleteUser').delete(adminAuth, deleteUser);
+router.route('/delete').delete(adminAuth, deleteUser);
 
 export default router;

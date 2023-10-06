@@ -2,12 +2,12 @@ import express from 'express';
 import { add, get, getAll, remove, update } from '../project/project';
 
 const router = express.Router();
-router.route('/getProject').get(get);
-router.route('/getProjects').get(getAll);
+router.route('/get').get(get);
+router.route('/all').get(getAll);
 
 //TODO: requires auth
-router.route('/addProject').post(add);
-router.route('/updateProject').put(update);
-router.route('/removeProject').delete(remove);
+router.route('/add').post(add);
+router.route('/update').put(update);
+router.route('/delete').delete(remove);
 
 export default router;
