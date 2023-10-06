@@ -8,4 +8,4 @@ Currently implemented:
 - MongoDB
 - Node
 - Typescript
-- Pm2 (node.js process manager) 
+- Pm2 (node.js process manager)
