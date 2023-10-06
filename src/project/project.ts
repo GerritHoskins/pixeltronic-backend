@@ -4,7 +4,7 @@ import User from '../model/user';
 
 const add = async (req: Request, res: Response) => {
   const { name, desc, img } = req.body;
-  if (!name || !desc || !img) {
+  if (!name || !desc) {
     return res.status(400).json({ message: 'Required params not provided' });
   }
 
@@ -63,14 +63,14 @@ const remove = async (req: Request, res: Response) => {
 };
 
 const get = async (req: Request, res: Response) => {
-  const { name } = req.body;
+  const { id } = req.body;
 
-  if (!name) {
+  if (!id) {
     return res.status(400).json({ message: 'Project name not provided' });
   }
 
   try {
-    const project = await Project.findById({ name });
+    const project = await Project.findById(id);
     if (!project) {
       return res.status(400).json({ message: `Project not found with name: ${name}` });
     }
@@ -85,6 +85,7 @@ const getAll = async (req: Request, res: Response) => {
   try {
     const projects = await Project.find({});
     const projectFunction = projects.map((project) => ({
+      id: project.id,
       name: project.name,
       desc: project.desc,
       img: project.img ?? '',
