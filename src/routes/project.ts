@@ -7,7 +7,8 @@ router.route('/getProject').get(get);
 router.route('/getProjects').get(getAll);
 
 //requires auth
-router.route('/addProject').post(adminAuth, add);
+router.route('/addProject').post(add);
+
 router.route('/updateProject').put(adminAuth, update);
 router.route('/removeProject').delete(adminAuth, remove);
 
