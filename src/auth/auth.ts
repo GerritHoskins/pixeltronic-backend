@@ -10,20 +10,20 @@ const verifyPromise = promisify<string, Secret, VerifyOptions | undefined, JwtPa
 const jwtSecretLive = getEnv(Env.JWT_SECRET_LIVE);
 
 export const register = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
   if (!password || password.length < 6) {
     return res.status(400).json({ message: 'Password must be at least 6 characters' });
   }
 
   try {
     const hashedPassword = await hash(password, 10);
-    const user = await User.create({ username, password: hashedPassword });
+    const user = await User.create({ email, password: hashedPassword });
     const maxAge = 3 * 60 * 60;
-    const token = sign({ id: user._id, username, role: user.role }, jwtSecretLive, {
+    const token = sign({ id: user._id, email, role: user.role }, jwtSecretLive, {
       expiresIn: maxAge,
     });
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-    res.status(201).json({ message: 'User successfully created', user: { id: user._id, username, role: user.role } });
+    res.status(201).json({ message: 'User successfully created', user: { id: user._id, email, role: user.role } });
   } catch (error) {
     if (error instanceof Error) {
       console.error(`An uncaught exception occurred: ${error.message}`);
@@ -36,17 +36,17 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username or Password not provided' });
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email or Password not provided' });
   }
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
     if (user && (await compare(password, user.password))) {
       const maxAge = 3 * 60 * 60;
-      const token = sign({ id: user._id, username, role: user.role }, jwtSecretLive, {
+      const token = sign({ id: user._id, email, role: user.role }, jwtSecretLive, {
         expiresIn: maxAge,
       });
       res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
@@ -54,22 +54,24 @@ export const login = async (req: Request, res: Response) => {
         message: 'Successfully logged in',
         user: {
           id: user._id,
-          username: user.username,
+          email: user.email,
           role: user.role,
         },
       });
     } else {
-      res.status(400).json({ message: 'Invalid username or password' });
+      res.status(400).json({ message: 'Invalid Email or password' });
     }
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: 'Login failed' });
   }
 };
+
 export const logout = async (req: Request, res: Response) => {
   res.cookie('jwt', '', { maxAge: 1 });
   res.redirect(200, '/');
 };
+
 export const update = async (req: Request, res: Response) => {
   const { role, id } = req.body;
   if (!role || !id) {
@@ -127,13 +129,13 @@ const auth = (role: string) => async (req: Request, res: Response, next: NextFun
 };
 
 export const adminAuth = auth('admin');
-export const userAuth = auth('Basic');
+export const userAuth = auth('user');
 
 export const all = async (req: Request, res: Response) => {
   try {
     const users = await User.find({});
     const userFunction = users.map((user) => ({
-      username: user.username,
+      email: user.email,
       role: user.role,
     }));
 

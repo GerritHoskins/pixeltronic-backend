@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "npx tsc && node --inspect build/server.js",
-    "dev": "npx tsc && nodemon build/server.js",
+    "dev": "rm -r build/ && npx tsc && nodemon build/server.js",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix && prettier --write src/"
   },

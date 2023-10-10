@@ -42,7 +42,7 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Server up and running.');
 });
 app.get('/admin', adminAuth, (req, res) => res.send('Admin Route'));
-app.get('/basic', userAuth, (req, res) => res.send('User Route'));
+app.get('/user', userAuth, (req, res) => res.send('User Route'));
 app.use('/api/auth', auth);
 app.use('/api/project', project);
 
