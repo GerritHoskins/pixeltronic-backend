@@ -9,7 +9,7 @@ import type { NextFunction, Request, Response } from 'express';
 const verifyPromise = promisify<string, Secret, VerifyOptions | undefined, JwtPayload | string>(verify);
 const jwtSecretLive = getEnv(Env.JWT_SECRET_LIVE);
 
-const generateToken = (user: unknown) => {
+const generateToken = (user: any) => {
   const maxAge = 3 * 60 * 60;
   const tokenPayload = { id: user._id, email: user.email, role: user.role };
   const token = sign(tokenPayload, jwtSecretLive, {
