@@ -1,64 +1,59 @@
 import type { Request, Response } from 'express';
 import Project from '../model/project';
-import User from '../model/user';
+
+const handleErrors = (error: unknown, res: Response, defaultMessage: string) => {
+  console.error(error);
+  res.status(500).json({ message: defaultMessage });
+};
 
 const add = async (req: Request, res: Response) => {
-  const { name, desc, img } = req.body;
+  const { name, desc, file } = req.body;
   if (!name || !desc) {
     return res.status(400).json({ message: 'Required params not provided' });
   }
 
   try {
-    const project = await Project.create({ name, desc, img });
-    res.status(200).json({ message: 'Project successfully created', project: project.name });
+    const project = await Project.create({ name, desc, file });
+    res.status(201).json({ message: 'Project successfully created', project: project.name });
   } catch (error) {
-    if (error instanceof Error) {
-      console.error(`An uncaught exception occurred: ${error.message}`);
-    } else {
-      console.error(`An unexpected exception occurred: ${error}`);
-    }
-
-    res.status(400).json({ message: 'Project creation failed' });
+    handleErrors(error, res, 'Project creation failed');
   }
 };
 
 const update = async (req: Request, res: Response) => {
-  const { name, desc, img } = req.body;
-  if (!name || !desc || !img) {
+  const { name, desc, file } = req.body;
+  if (!name || !desc || !file) {
     return res.status(400).json({ message: 'Required params not provided' });
   }
-  const filter = { name };
-  const update = { desc, img };
+
   try {
-    const project = await Project.findOneAndUpdate(filter, update, {
-      new: true,
-    });
+    const project = await Project.findOneAndUpdate(
+      { name },
+      { desc, file },
+      {
+        new: true,
+      },
+    );
     if (!project) {
-      return res.status(400).json({ message: `Project not found with name: ${name}` });
+      return res.status(404).json({ message: `Project not found with name: ${name}` });
     }
-    project.name = name;
-    project.desc = desc;
-    project.img = img;
-    await project.save();
-    return res.status(200).json({ message: 'Update successful', project });
+    res.status(200).json({ message: 'Update successful', project });
   } catch (error) {
-    console.error(error);
-    return res.status(400).json({ message: 'Update failed' });
+    handleErrors(error, res, 'Update failed');
   }
 };
 
 const remove = async (req: Request, res: Response) => {
   const { name } = req.body;
   try {
-    const project = await User.findById(name);
+    const project = await Project.findOne({ name });
     if (!project) {
-      return res.status(400).json({ message: 'Project not found' });
+      return res.status(404).json({ message: 'Project not found' });
     }
     await project.deleteOne();
     return res.status(200).json({ message: 'Project successfully deleted' });
   } catch (error) {
-    console.error(error);
-    return res.status(400).json({ message: 'Delete failed' });
+    handleErrors(error, res, 'Delete failed');
   }
 };
 
@@ -66,18 +61,18 @@ const get = async (req: Request, res: Response) => {
   const { id } = req.body;
 
   if (!id) {
-    return res.status(400).json({ message: 'Project name not provided' });
+    return res.status(400).json({ message: 'Project ID not provided' });
   }
 
   try {
     const project = await Project.findById(id);
     if (!project) {
-      return res.status(400).json({ message: `Project not found with name: ${id}` });
+      return res.status(404).json({ message: `Project not found with ID: ${id}` });
     }
 
     return res.status(200).json({ message: 'Get project successful', project });
   } catch (error) {
-    console.error(error);
+    handleErrors(error, res, 'Failed to retrieve project');
   }
 };
 
@@ -88,12 +83,12 @@ const all = async (req: Request, res: Response) => {
       id: project.id,
       name: project.name,
       desc: project.desc,
-      img: project.img ?? '',
+      file: project.file ?? '',
     }));
 
     res.status(200).json({ projects: projectFunction });
   } catch (error) {
-    console.error(error);
+    handleErrors(error, res, 'Failed to retrieve all projects');
   }
 };
 

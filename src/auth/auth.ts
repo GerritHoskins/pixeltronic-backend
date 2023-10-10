@@ -9,8 +9,19 @@ import type { NextFunction, Request, Response } from 'express';
 const verifyPromise = promisify<string, Secret, VerifyOptions | undefined, JwtPayload | string>(verify);
 const jwtSecretLive = getEnv(Env.JWT_SECRET_LIVE);
 
+const generateToken = (user: unknown) => {
+  const maxAge = 3 * 60 * 60;
+  const tokenPayload = { id: user._id, email: user.email, role: user.role };
+  const token = sign(tokenPayload, jwtSecretLive, {
+    expiresIn: maxAge,
+  });
+
+  return { token, maxAge };
+};
+
 export const register = async (req: Request, res: Response) => {
   const { email, password } = req.body;
+
   if (!password || password.length < 6) {
     return res.status(400).json({ message: 'Password must be at least 6 characters' });
   }
@@ -18,19 +29,13 @@ export const register = async (req: Request, res: Response) => {
   try {
     const hashedPassword = await hash(password, 10);
     const user = await User.create({ email, password: hashedPassword });
-    const maxAge = 3 * 60 * 60;
-    const token = sign({ id: user._id, email, role: user.role }, jwtSecretLive, {
-      expiresIn: maxAge,
-    });
+    const { token, maxAge } = generateToken(user);
+
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
     res.status(201).json({ message: 'User successfully created', user: { id: user._id, email, role: user.role } });
   } catch (error) {
-    if (error instanceof Error) {
-      console.error(`An uncaught exception occurred: ${error.message}`);
-    } else {
-      console.error(`An unexpected exception occurred: ${error}`);
-    }
-
+    //TODO: Refactor error handling if necessary
+    console.error(error);
     res.status(400).json({ message: 'User creation failed' });
   }
 };
@@ -45,10 +50,8 @@ export const login = async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({ email });
     if (user && (await compare(password, user.password))) {
-      const maxAge = 3 * 60 * 60;
-      const token = sign({ id: user._id, email, role: user.role }, jwtSecretLive, {
-        expiresIn: maxAge,
-      });
+      const { token, maxAge } = generateToken(user);
+
       res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
       res.status(200).json({
         message: 'Successfully logged in',
@@ -59,11 +62,11 @@ export const login = async (req: Request, res: Response) => {
         },
       });
     } else {
-      res.status(400).json({ message: 'Invalid Email or password' });
+      res.status(401).json({ message: 'Invalid Email or password' }); // Change to 401 for unauthorized.
     }
   } catch (error) {
     console.error(error);
-    res.status(400).json({ message: 'Login failed' });
+    res.status(500).json({ message: 'Login failed' }); // 500 for internal server errors.
   }
 };
 

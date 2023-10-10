@@ -9,7 +9,7 @@ const ProjectSchema = new Mongoose.Schema({
   desc: {
     type: String,
   },
-  img: {
+  file: {
     data: Buffer,
     contentType: String,
   },

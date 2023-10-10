@@ -1,6 +1,7 @@
 export enum Env {
   NODE_ENV = 'NODE_ENV',
   PORT = 'PORT',
+  DB_LOCAL = 'DB_LOCAL',
   DB_CLUSTER = 'DB_CLUSTER',
   DB_USERNAME = 'DB_USERNAME',
   DB_PASSWORD = 'DB_PASSWORD',
