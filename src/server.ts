@@ -9,6 +9,10 @@ import { adminAuth, userAuth } from './auth/auth';
 import { verify_signature } from './config/webhooks';
 import { Env, getEnv } from './config/env';
 import { exec } from 'child_process';
+import { upload } from './storage';
+import * as fs from 'fs';
+import path from 'path';
+import FileUpload from './model/file';
 
 const app: Express = express();
 const PORT: string = getEnv(Env.PORT);
@@ -19,6 +23,24 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes
+app.post('/', upload.single('file'), async (req, res) => {
+  const { file } = req;
+  if (!file) {
+    console.error(`Missing file req param`);
+    return res.status(400).send('Failed to upload file.');
+  }
+  try {
+    const fileUpload = await FileUpload.create({
+      data: fs.readFileSync(path.join(__dirname + 'assets/uploads/' + file.filename)),
+      contentType: 'image/png',
+    });
+    console.log(fileUpload);
+    res.redirect('/');
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send('Failed to upload file.');
+  }
+});
 app.post(getEnv(Env.WEBHOOK_GITHUB_SYNC_URL), (req: Request, res: Response) => {
   if (!verify_signature(req)) {
     res.status(401).send('Unauthorized');
