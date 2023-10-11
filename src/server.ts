@@ -12,14 +12,13 @@ import { exec } from 'child_process';
 import bodyParser from 'body-parser';
 import { upload } from './storage';
 import Upload from './model/upload';
-import path from 'path';
 
 const app: Express = express();
 const PORT: string = getEnv(Env.PORT);
 
 // Middleware
 app.use(cors());
-app.use(express.static(path.join(__dirname, '../public/assets/uploads')));
+app.use(express.static('public'));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(
   bodyParser.urlencoded({
