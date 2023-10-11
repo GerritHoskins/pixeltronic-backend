@@ -9,38 +9,56 @@ import { adminAuth, userAuth } from './auth/auth';
 import { verify_signature } from './config/webhooks';
 import { Env, getEnv } from './config/env';
 import { exec } from 'child_process';
+import bodyParser from 'body-parser';
 import { upload } from './storage';
-import * as fs from 'fs';
+import Upload from './model/upload';
 import path from 'path';
-import FileUpload from './model/file';
 
 const app: Express = express();
 const PORT: string = getEnv(Env.PORT);
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public/assets/uploads')));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(
+  bodyParser.urlencoded({
+    limit: '50mb',
+    extended: true,
+    parameterLimit: 50000,
+  }),
+);
 app.use(cookieParser());
 
 // Routes
-app.post('/', upload.single('file'), async (req, res) => {
-  const { file } = req;
-  if (!file) {
-    console.error(`Missing file req param`);
-    return res.status(400).send('Failed to upload file.');
-  }
+app.post('/api/project/add', upload.single('file'), async (req, res, next) => {
   try {
-    const fileUpload = await FileUpload.create({
-      data: fs.readFileSync(path.join(__dirname + 'assets/uploads/' + file.filename)),
-      contentType: 'image/png',
-    });
-    console.log(fileUpload);
-    res.redirect('/');
-  } catch (err) {
-    console.log(err);
-    return res.status(500).send('Failed to upload file.');
+    if (!req.file) {
+      res.json({
+        success: false,
+        message: 'You must provide at least 1 file',
+      });
+    } else {
+      const imageUploadObject = {
+        file: {
+          data: req.file.buffer,
+          contentType: req.file.mimetype,
+        },
+        fileName: req.body.fileName,
+      };
+      const uploadObject = new Upload(imageUploadObject);
+      // saving the object into the database
+      //const uploadProcess =
+      await uploadObject.save();
+      //res.status(201).json({ msg: 'Image added', uploadProcess });
+      next();
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
   }
 });
+
 app.post(getEnv(Env.WEBHOOK_GITHUB_SYNC_URL), (req: Request, res: Response) => {
   if (!verify_signature(req)) {
     res.status(401).send('Unauthorized');

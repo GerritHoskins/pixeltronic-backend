@@ -1,13 +1,28 @@
 import multer from 'multer';
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'assets/uploads/');
+  destination: function (req: any, file: any, cb: any) {
+    cb(null, process.cwd() + '/public/assets/uploads');
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix);
+  filename: function (req: any, file: any, cb: any) {
+    //cb(null, Date.now() + file.originalname.replace(/\s+/g, '-'));
+    cb(null, file.originalname.replace(/\s+/g, '-'));
   },
 });
 
-export const upload = multer({ storage: storage });
+const fileFilter = (req: any, file: any, cb: any) => {
+  // reject a file
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+export const upload = multer({
+  storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
+  fileFilter: fileFilter,
+});

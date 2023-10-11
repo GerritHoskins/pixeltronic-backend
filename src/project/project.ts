@@ -5,15 +5,39 @@ const handleErrors = (error: unknown, res: Response, defaultMessage: string) => 
   console.error(error);
   res.status(500).json({ message: defaultMessage });
 };
-
+/*app.post('/api/project/add', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      res.json({
+        success: false,
+        message: 'You must provide at least 1 file',
+      });
+    } else {
+      const imageUploadObject = {
+        file: {
+          data: req.file.buffer,
+          contentType: req.file.mimetype,
+        },
+        fileName: req.body.fileName,
+      };
+      const uploadObject = new Upload(imageUploadObject);
+      // saving the object into the database
+      const uploadProcess = await uploadObject.save();
+      res.status(201).json({ msg: 'Image added', uploadProcess });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+  }
+});*/
 const add = async (req: Request, res: Response) => {
-  const { name, desc, file } = req.body;
+  const { name, desc, fileName } = req.body;
   if (!name || !desc) {
     return res.status(400).json({ message: 'Required params not provided' });
   }
 
   try {
-    const project = await Project.create({ name, desc, file });
+    const project = await Project.create({ name, desc, file: fileName });
     res.status(201).json({ message: 'Project successfully created', project: project.name });
   } catch (error) {
     handleErrors(error, res, 'Project creation failed');

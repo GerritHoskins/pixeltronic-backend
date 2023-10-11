@@ -10,8 +10,7 @@ const ProjectSchema = new Mongoose.Schema({
     type: String,
   },
   file: {
-    data: Buffer,
-    contentType: String,
+    type: String,
   },
 });
 
