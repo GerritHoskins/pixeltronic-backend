@@ -8,7 +8,7 @@ import project from './routes/project';
 import { adminAuth, userAuth } from './auth/auth';
 import { verify_signature } from './config/webhooks';
 import { Env, getEnv } from './config/env';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import bodyParser from 'body-parser';
 import { upload } from './storage';
 import Upload from './model/upload';
@@ -69,26 +69,17 @@ app.post(getEnv(Env.WEBHOOK_GITHUB_SYNC_URL), (req: Request, res: Response) => {
       console.warn(`git warnings: ${stderr}`);
     }
     console.log(`git repo: ${stdout}`);
-    res.redirect('system/reboot');
-  });
-});
-app.get('/system/reboot', (req, res) => {
-  setTimeout(function () {
-    // Listen for the 'exit' event.
-    // This is emitted when our app exits.
-    process.on('exit', function () {
-      //  Resolve the `child_process` module, and `spawn`
-      //  a new process.
-      //  The `child_process` module lets us
-      //  access OS functionalities by running any bash command.`.
-      require('child_process').spawn(process.argv.shift(), process.argv, {
-        cwd: process.cwd(),
-        detached: true,
-        stdio: 'inherit',
+    setTimeout(() => {
+      process.on('exit', () => {
+        spawn(process.argv.shift(), process.argv, {
+          cwd: process.cwd(),
+          detached: true,
+          stdio: 'inherit',
+        });
       });
-    });
-    process.exit();
-  }, 1000);
+      process.exit();
+    }, 1000);
+  });
 });
 app.get('/', (req: Request, res: Response) => {
   console.log('Server up and running.');
