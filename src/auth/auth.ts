@@ -33,7 +33,10 @@ export const register = async (req: Request, res: Response) => {
 
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
     //res.status(201).json({ message: 'User successfully created', user: { id: user._id, email, role: user.role } });
-    res.status(201).json({ token });
+    res.status(201).json({
+      token,
+      user: { id: user._id, email, role: user.role },
+    });
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: 'User creation failed' });
@@ -55,6 +58,7 @@ export const login = async (req: Request, res: Response) => {
       res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
       res.status(200).json({
         token,
+        user: { id: user._id, email, role: user.role },
       });
     } else {
       res.status(401).json({ message: 'Invalid Email or password' }); // Change to 401 for unauthorized.
