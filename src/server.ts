@@ -46,10 +46,7 @@ app.post('/api/project/add', upload.single('file'), async (req, res, next) => {
         fileName: req.body.fileName,
       };
       const uploadObject = new Upload(imageUploadObject);
-      // saving the object into the database
-      //const uploadProcess =
       await uploadObject.save();
-      //res.status(201).json({ msg: 'Image added', uploadProcess });
       next();
     }
   } catch (error) {
@@ -72,9 +69,26 @@ app.post(getEnv(Env.WEBHOOK_GITHUB_SYNC_URL), (req: Request, res: Response) => {
       console.warn(`git warnings: ${stderr}`);
     }
     console.log(`git repo: ${stdout}`);
-    res.status(200).send('Received and processed!');
-    process.exit(1);
+    res.redirect('system/reboot');
   });
+});
+app.get('/system/reboot', (req, res) => {
+  setTimeout(function () {
+    // Listen for the 'exit' event.
+    // This is emitted when our app exits.
+    process.on('exit', function () {
+      //  Resolve the `child_process` module, and `spawn`
+      //  a new process.
+      //  The `child_process` module lets us
+      //  access OS functionalities by running any bash command.`.
+      require('child_process').spawn(process.argv.shift(), process.argv, {
+        cwd: process.cwd(),
+        detached: true,
+        stdio: 'inherit',
+      });
+    });
+    process.exit();
+  }, 1000);
 });
 app.get('/', (req: Request, res: Response) => {
   console.log('Server up and running.');
