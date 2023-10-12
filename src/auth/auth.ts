@@ -32,9 +32,9 @@ export const register = async (req: Request, res: Response) => {
     const { token, maxAge } = generateToken(user);
 
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-    res.status(201).json({ message: 'User successfully created', user: { id: user._id, email, role: user.role } });
+    //res.status(201).json({ message: 'User successfully created', user: { id: user._id, email, role: user.role } });
+    res.status(201).json({ token });
   } catch (error) {
-    //TODO: Refactor error handling if necessary
     console.error(error);
     res.status(400).json({ message: 'User creation failed' });
   }
@@ -50,16 +50,11 @@ export const login = async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({ email });
     if (user && (await compare(password, user.password))) {
-      const { token, maxAge } = generateToken(user);
+      const { token, maxAge } = generateToken({ user: user });
 
       res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
       res.status(200).json({
-        message: 'Successfully logged in',
-        user: {
-          id: user._id,
-          email: user.email,
-          role: user.role,
-        },
+        token,
       });
     } else {
       res.status(401).json({ message: 'Invalid Email or password' }); // Change to 401 for unauthorized.
