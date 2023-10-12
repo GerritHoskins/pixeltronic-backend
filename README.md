@@ -6,5 +6,5 @@ Part of the pixeltronic domain. (check out the frontend here: https://github.com
 Currently implemented:
 - Express
 - MongoDB
-- Node
+- Node.js
 - Typescript
