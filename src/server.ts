@@ -71,7 +71,7 @@ app.post(getEnv(Env.WEBHOOK_GITHUB_SYNC_URL), (req: Request, res: Response) => {
     console.log(`git repo: ${stdout}`);
     setTimeout(() => {
       process.on('exit', () => {
-        spawn(process.argv.shift(), process.argv, {
+        spawn(process.argv.shift() || '', process.argv, {
           cwd: process.cwd(),
           detached: true,
           stdio: 'inherit',
